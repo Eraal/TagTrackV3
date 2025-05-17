@@ -1,0 +1,357 @@
+{% extends "base.html" %} {% block title %}Manage Locations - TagTrack{% endblock %}
+{% block content %}
+<div class="bg-white p-6 shadow-sm rounded-lg mb-6">
+  <h2 class="text-2xl font-bold">Location Management</h2>
+  <p class="text-gray-600 mt-1">Add, edit, or remove locations used throughout the system</p>
+</div>
+
+<div class="flex flex-col gap-4 p-4">
+  <div
+    id="locations-container"
+    class="bg-gray-100 rounded-lg shadow-lg p-6 transition-opacity duration-300 opacity-0"
+  >
+    <div
+      class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6"
+    >
+      <input
+        type="text"
+        id="location-search"
+        placeholder="Search locations..."
+        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-64"
+      />
+      <button
+        class="create-location-btn bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200 font-medium"
+      >
+        Add New Location
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full bg-white rounded-lg overflow-hidden shadow">
+        <thead>
+          <tr class="bg-gray-200 text-gray-700">
+            <th class="py-3 px-4 text-left">#</th>
+            <th class="py-3 px-4 text-left cursor-pointer" onclick="sortLocationsTable(1)">
+              <div class="flex items-center">
+                Name
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 ml-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                  />
+                </svg>
+              </div>
+            </th>
+            <th class="py-3 px-4 text-left">Used By</th>
+            <th class="py-3 px-4 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="locationTable" class="divide-y divide-gray-100">
+          <!-- Location rows will be generated dynamically -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Create Location Modal -->
+  <div
+    id="locationModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+  >
+    <div
+      class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 transform transition-all"
+    >
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Add New Location</h2>
+        <span
+          class="close text-gray-500 hover:text-gray-800 text-2xl cursor-pointer"
+          id="closeLocationModalBtn"
+          >&times;</span
+        >
+      </div>
+      <form id="createLocationForm" class="space-y-4">
+        <div>
+          <label
+            for="locationName"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Location Name:</label
+          >
+          <input
+            type="text"
+            id="locationName"
+            name="locationName"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            placeholder="e.g. Library, Canteen, Main Office"
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg transition duration-200 font-medium"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Location Modal -->
+  <div
+    id="editLocationModal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+  >
+    <div
+      class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md mx-4 transform transition-all"
+    >
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Edit Location</h2>
+        <span
+          class="close text-gray-500 hover:text-gray-800 text-2xl cursor-pointer"
+          id="closeEditLocationModalBtn"
+          >&times;</span
+        >
+      </div>
+      <form id="editLocationForm" class="space-y-4">
+        <input type="hidden" id="editLocationId" name="id" />
+        <div>
+          <label
+            for="editLocationName"
+            class="block text-sm font-medium text-gray-700 mb-1"
+            >Location Name:</label
+          >
+          <input
+            type="text"
+            id="editLocationName"
+            name="name"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+        <div class="flex gap-3">
+          <button
+            type="submit"
+            class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg transition duration-200 font-medium"
+          >
+            Update
+          </button>
+          <button
+            type="button"
+            id="deleteLocationBtn"
+            class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition duration-200 font-medium"
+          >
+            Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let locations = []; // Global variable to store fetched locations
+
+    // Fetch locations on page load
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("locations-container").classList.add("opacity-100");
+      fetchLocations();
+      
+      // Setup event listeners
+      document.querySelector(".create-location-btn").addEventListener("click", openLocationModal);
+      document.getElementById("closeLocationModalBtn").addEventListener("click", closeLocationModal);
+      document.getElementById("closeEditLocationModalBtn").addEventListener("click", closeEditLocationModal);
+      document.getElementById("createLocationForm").addEventListener("submit", handleCreateLocation);
+      document.getElementById("editLocationForm").addEventListener("submit", handleUpdateLocation);
+      document.getElementById("deleteLocationBtn").addEventListener("click", deleteLocation);
+      document.getElementById("location-search").addEventListener("input", filterLocations);
+      
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        if (event.target === document.getElementById("locationModal")) {
+          closeLocationModal();
+        }
+        if (event.target === document.getElementById("editLocationModal")) {
+          closeEditLocationModal();
+        }
+      };
+    });
+
+    // Locations management functions
+    async function fetchLocations() {
+      try {
+        const response = await fetch("/get_locations");
+        if (!response.ok) throw new Error("Failed to fetch locations");
+
+        locations = await response.json(); // Update global locations
+        renderLocationsTable(locations);
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+      }
+    }
+
+    function renderLocationsTable(data) {
+      const table = document.getElementById("locationTable");
+      table.innerHTML = "";
+
+      if (data.length === 0) {
+        const emptyRow = document.createElement("tr");
+        emptyRow.innerHTML = `
+          <td colspan="4" class="py-4 text-center text-gray-500">
+            No locations found. Create a new location to get started.
+          </td>
+        `;
+        table.appendChild(emptyRow);
+        return;
+      }
+
+      data.forEach((location) => {
+        const row = document.createElement("tr");
+        row.className = "hover:bg-gray-50";
+        row.innerHTML = `
+          <td class="py-3 px-4">${location.id}</td>
+          <td class="py-3 px-4 font-medium">${location.name}</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Items</span>
+          </td>
+          <td class="py-3 px-4">
+            <button class="edit-location-btn bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded transition duration-200 mr-2" data-id="${location.id}">Edit</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+
+      // Add event listeners to edit buttons
+      document.querySelectorAll(".edit-location-btn").forEach(button => {
+        button.addEventListener("click", function() {
+          const locationId = this.getAttribute("data-id");
+          const location = locations.find(l => l.id == locationId);
+          
+          if (location) {
+            openEditLocationModal(location);
+          } else {
+            console.error("Location not found for ID:", locationId);
+          }
+        });
+      });
+    }
+
+    function openLocationModal() {
+      document.getElementById("locationModal").style.display = "flex";
+    }
+
+    function closeLocationModal() {
+      document.getElementById("locationModal").style.display = "none";
+      document.getElementById("createLocationForm").reset();
+    }
+
+    function openEditLocationModal(location) {
+      document.getElementById("editLocationId").value = location.id;
+      document.getElementById("editLocationName").value = location.name;
+      document.getElementById("editLocationModal").style.display = "flex";
+    }
+
+    function closeEditLocationModal() {
+      document.getElementById("editLocationModal").style.display = "none";
+    }
+
+    async function handleCreateLocation(event) {
+      event.preventDefault();
+      const name = document.getElementById("locationName").value;
+
+      try {
+        const response = await fetch("/add_location", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+
+        if (response.ok) {
+          fetchLocations();
+          closeLocationModal();
+          this.reset();
+        } else {
+          const error = await response.json();
+          alert(error.error || "Failed to create location");
+        }
+      } catch (error) {
+        console.error("Error creating location:", error);
+      }
+    }
+
+    async function handleUpdateLocation(event) {
+      event.preventDefault();
+      
+      const id = document.getElementById("editLocationId").value;
+      const name = document.getElementById("editLocationName").value;
+
+      try {
+        const response = await fetch(`/update_location/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name }),
+        });
+
+        if (response.ok) {
+          fetchLocations();
+          closeEditLocationModal();
+        } else {
+          const error = await response.json();
+          alert(error.error || "Failed to update location");
+        }
+      } catch (error) {
+        console.error("Error updating location:", error);
+      }
+    }
+
+    async function deleteLocation() {
+      const locationId = document.getElementById("editLocationId").value;
+      if (!locationId) return;
+
+      const confirmDelete = confirm(
+        "Are you sure you want to delete this location? This action cannot be undone."
+      );
+      if (!confirmDelete) return;
+
+      try {
+        const response = await fetch(`/delete_location/${locationId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          fetchLocations();
+          closeEditLocationModal();
+        } else {
+          const error = await response.json();
+          alert(error.error || "Failed to delete location");
+        }
+      } catch (error) {
+        console.error("Error deleting location:", error);
+      }
+    }
+
+    function filterLocations() {
+      const searchTerm = document.getElementById("location-search").value.toLowerCase();
+      const filtered = locations.filter(location => 
+        location.name.toLowerCase().includes(searchTerm)
+      );
+      renderLocationsTable(filtered);
+    }
+
+    function sortLocationsTable(columnIndex) {
+      locations.sort((a, b) => {
+        if (columnIndex === 1) { // Sort by name
+          return a.name.localeCompare(b.name);
+        }
+        return 0;
+      });
+      renderLocationsTable(locations);
+    }
+  </script>
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'userbase.html' %}
+
+{% block content %}
+<main class="container mx-auto px-4 py-8 max-w-5xl">
+    <!-- Hero section -->
+    <section class="mb-8">
+        <div class="bg-gradient-to-r from-purple-900 to-indigo-800 rounded-lg shadow-lg p-8 text-white">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">Found Someone's Item?</h1>
+                    <p class="text-lg opacity-90">Thank you for your honesty! Follow these instructions to help return the item to its owner.</p>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <img src="{{ url_for('static', filename='images/system.png') }}" alt="Report Found Item" class="w-full h-auto rounded-lg shadow-md">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Instructions section -->
+    <section class="mb-10">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-purple-900 flex items-center">
+                <i class="fas fa-clipboard-list mr-3"></i>
+                Submission Process
+            </h2>
+            
+            <div class="bg-blue-50 p-5 rounded-lg border border-blue-100 mb-8">
+                <h3 class="font-bold text-blue-800 text-lg mb-3">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Important Information
+                </h3>
+                <p class="text-blue-700">
+                    All found items should be submitted to the <span class="font-bold">BAO Office</span>. The staff there will handle documenting and storing the item until it can be returned to its owner.
+                </p>
+            </div>
+            
+            <div class="space-y-8">
+                <!-- Bring to Office Section -->
+                <div class="flex flex-col md:flex-row gap-6 items-start">
+                    <div class="flex items-center justify-center bg-green-100 rounded-full p-4 h-16 w-16 shrink-0">
+                        <span class="text-2xl font-bold text-green-800">1</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Bring the Item to the BAO Office</h3>
+                        <p class="text-gray-600 mb-3">
+                            As soon as possible, please bring the found item to the BAO Office located in the Student Center building.
+                        </p>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-700 mb-1">Office Hours:</h4>
+                            <p class="text-gray-600">Monday - Friday: 9:00 AM - 4:00 PM</p>
+                            <p class="text-gray-600">Closed on weekends and holidays</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Provide Details Section -->
+                <div class="flex flex-col md:flex-row gap-6 items-start">
+                    <div class="flex items-center justify-center bg-green-100 rounded-full p-4 h-16 w-16 shrink-0">
+                        <span class="text-2xl font-bold text-green-800">2</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Provide Information About the Item</h3>
+                        <p class="text-gray-600 mb-3">
+                            You'll be asked to share some details about where and when you found the item. This information helps us:
+                        </p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>Contact the rightful owner more quickly</li>
+                            <li>Verify the item belongs to someone claiming it</li>
+                            <li>Maintain accurate records of all found items</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Receipt Section -->
+                <div class="flex flex-col md:flex-row gap-6 items-start">
+                    <div class="flex items-center justify-center bg-green-100 rounded-full p-4 h-16 w-16 shrink-0">
+                        <span class="text-2xl font-bold text-green-800">3</span>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Receive Documentation (Optional)</h3>
+                        <p class="text-gray-600 mb-3">
+                            If you'd like, you can request a receipt confirming that you turned in a found item. 
+                            This can be useful if:
+                        </p>
+                        <ul class="list-disc pl-5 text-gray-600 space-y-1">
+                            <li>The owner wants to thank you personally</li>
+                            <li>You want to follow up on whether the item was claimed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Tips section -->
+    <section class="mb-10">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-purple-900 flex items-center">
+                <i class="fas fa-lightbulb mr-3"></i>
+                Helpful Guidelines
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-yellow-50 p-5 rounded-lg border border-yellow-100">
+                    <h3 class="font-bold text-yellow-800 text-lg mb-3">Act Promptly</h3>
+                    <p class="text-gray-700">
+                        Please submit found items as soon as possible. Someone is likely actively searching for their lost possession.
+                    </p>
+                </div>
+                
+                <div class="bg-green-50 p-5 rounded-lg border border-green-100">
+                    <h3 class="font-bold text-green-800 text-lg mb-3">Handle with Care</h3>
+                    <p class="text-gray-700">
+                        Avoid opening bags, wallets, or accessing personal information. Simply turn in items as you found them.
+                    </p>
+                </div>
+                
+                <div class="bg-blue-50 p-5 rounded-lg border border-blue-100">
+                    <h3 class="font-bold text-blue-800 text-lg mb-3">For Valuable Items</h3>
+                    <p class="text-gray-700">
+                        If you find a particularly valuable item (electronic device, wallet, jewelry), please deliver it to the office as soon as possible.
+                    </p>
+                </div>
+                
+                <div class="bg-purple-50 p-5 rounded-lg border border-purple-100">
+                    <h3 class="font-bold text-purple-800 text-lg mb-3">Check for ID Tags</h3>
+                    <p class="text-gray-700">
+                        If the item has a QR code or other identification tag, you may be able to contact the owner directly, but we still recommend bringing the item to the BAO Office.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Contact Information section -->
+    <section>
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold mb-6 text-purple-900 flex items-center">
+                <i class="fas fa-phone-alt mr-3"></i>
+                BAO Office Details
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex">
+                    <div class="bg-gray-100 p-5 rounded-lg w-full">
+                        <h3 class="font-bold text-gray-800 text-lg mb-3">Location & Contact</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-start">
+                                <i class="fas fa-map-marker-alt text-purple-800 mt-1 mr-3"></i>
+                                <span>Student Center Building, 1st Floor, Room 103</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-phone text-purple-800 mt-1 mr-3"></i>
+                                <span>(123) 456-7890</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-envelope text-purple-800 mt-1 mr-3"></i>
+                                <span>lostfound@campus.edu</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="flex">
+                    <div class="bg-purple-50 p-5 rounded-lg w-full">
+                        <h3 class="font-bold text-purple-800 text-lg mb-3">Thank You!</h3>
+                        <p class="text-gray-700 mb-4">
+                            Your honesty and thoughtfulness in turning in found items helps maintain a supportive community. Many students are able to recover their valuable possessions thanks to people like you.
+                        </p>
+                        <a href="mailto:lostfound@campus.edu" class="inline-flex items-center bg-purple-800 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
+                            <i class="fas fa-envelope mr-2"></i>
+                            Contact BAO Office
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+{% endblock %}

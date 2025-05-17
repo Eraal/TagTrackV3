@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Dashboard{% endblock %}</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Custom script -->
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+  <!-- Alpine.js for interactive components -->
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4F46E5',
+            secondary: '#6366F1',
+            accent: '#4338CA',
+            light: '#F9FAFB',
+            dark: '#111827',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    /* Custom styles that might be needed */
+    [x-cloak] { display: none !important; }
+    
+    /* Smooth animations */
+    .sidebar-transition {
+      transition: all 0.2s ease-in-out;
+    }
+
+    /* Active navigation item styles */
+    .nav-item-active {
+      position: relative;
+      font-weight: 600;
+      background-color: rgba(79, 70, 229, 0.1);
+      border-left: 4px solid #4F46E5;
+    }
+    
+    /* Navigation hover effect */
+    .nav-item {
+      position: relative;
+      transition: all 0.2s ease;
+    }
+    
+    .nav-item:hover {
+      background-color: rgba(79, 70, 229, 0.05);
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 20px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Profile dropdown animation */
+    .profile-dropdown {
+      transform-origin: top right;
+      transition: all 0.2s ease-out;
+    }
+  </style>
+</head>
+
+<body class="font-sans bg-light text-gray-800">
+  <div class="flex h-screen overflow-hidden">
+    <!-- Sidebar -->
+    <div x-data="{ open: false, currentSection: '{{ request.endpoint }}' }">
+      <!-- Mobile menu button -->
+      <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button @click="open = !open" class="text-gray-700 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary/30 p-1 rounded-md">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Sidebar Content -->
+      <div :class="{'translate-x-0': open, '-translate-x-full': !open}" 
+          class="fixed lg:static lg:translate-x-0 inset-y-0 left-0 z-40 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out overflow-y-auto h-full">
+        <div class="p-6">
+          <div class="flex items-center justify-center mb-6">
+            <div class="flex items-center p-2 bg-indigo-50 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <h1 class="text-2xl font-bold text-primary ml-2">TagTrack</h1>
+            </div>
+          </div>
+
+          <!-- Admin Profile Section in Sidebar -->
+          <div class="mb-6 pb-6 border-b border-gray-100">
+            <div class="flex flex-col items-center">
+              <div class="w-20 h-20 rounded-full bg-indigo-100 flex items-center justify-center mb-2 border-2 border-primary shadow-md">
+                <span class="text-xl font-bold text-primary">{{ session.get('admin_username', 'A')[0]|upper }}</span>
+              </div>
+              <h3 class="text-base font-semibold text-gray-800">{{ session.get('admin_username', 'Admin') }}</h3>
+              <p class="text-xs text-gray-500">Administrator</p>
+            </div>
+          </div>
+          
+          <!-- Navigation Section Label -->
+          <div class="mb-4 px-4">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Main Navigation</p>
+          </div>
+          
+          <nav class="space-y-1">
+            <!-- Dashboard Link -->
+            <a href="{{ url_for('dashboard') }}" 
+               class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.endpoint == 'dashboard' %}nav-item-active{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {% if request.endpoint == 'dashboard' %}text-primary{% else %}text-gray-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              <span>Dashboard</span>
+              {% if request.endpoint == 'dashboard' %}
+                <span class="ml-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              {% endif %}
+            </a>
+              <!-- Categories Link -->
+            <a href="{{ url_for('categories') }}" 
+               class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.endpoint == 'categories' %}nav-item-active{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {% if request.endpoint == 'categories' %}text-primary{% else %}text-gray-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>Categories</span>
+              {% if request.endpoint == 'categories' %}
+                <span class="ml-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              {% endif %}
+            </a>
+            
+            <!-- Locations Link -->
+            <a href="{{ url_for('locations') }}" 
+               class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.endpoint == 'locations' %}nav-item-active{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {% if request.endpoint == 'locations' %}text-primary{% else %}text-gray-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Locations</span>
+              {% if request.endpoint == 'locations' %}
+                <span class="ml-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              {% endif %}
+            </a>
+            
+            <!-- Items Section Label -->
+            <div class="my-4 px-4 pt-3 border-t border-gray-100">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Management</p>
+            </div>
+            
+            <!-- List Entry Items -->
+            <a href="{{ url_for('list_entry_item_page') }}" 
+               class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.endpoint == 'list_entry_item_page' %}nav-item-active{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {% if request.endpoint == 'list_entry_item_page' %}text-primary{% else %}text-gray-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span>List Entry Items</span>
+              {% if request.endpoint == 'list_entry_item_page' %}
+                <span class="ml-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              {% endif %}
+            </a>
+            
+            <!-- List Tag Item -->
+            <a href="{{ url_for('listtagitems') }}" 
+               class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.endpoint == 'listtagitems' %}nav-item-active{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {% if request.endpoint == 'listtagitems' %}text-primary{% else %}text-gray-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              <span>List Tag Items</span>
+              {% if request.endpoint == 'listtagitems' %}
+                <span class="ml-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+              {% endif %}
+            </a>
+            
+            <!-- Status Section Label -->
+            <div class="my-4 px-4 pt-3 border-t border-gray-100">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Item Status</p>
+            </div>
+            
+            <!-- List Found Items -->
+            <a href="{{ url_for('total_found_items') }}" 
+               class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.endpoint == 'total_found_items' %}nav-item-active{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {% if request.endpoint == 'total_found_items' %}text-primary{% else %}text-gray-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>List Found Items</span>
+              <span class="ml-auto flex items-center">
+                <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">Found</span>
+                {% if request.endpoint == 'total_found_items' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                {% endif %}
+              </span>
+            </a>
+            
+            <!-- List Lost Items -->
+            <a href="{{ url_for('total_lost_items') }}" 
+               class="nav-item flex items-center px-4 py-3 text-gray-700 rounded-lg transition-colors {% if request.endpoint == 'total_lost_items' %}nav-item-active{% endif %}">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3 {% if request.endpoint == 'total_lost_items' %}text-primary{% else %}text-gray-500{% endif %}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>List Lost Items</span>
+              <span class="ml-auto flex items-center">
+                <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">Lost</span>
+                {% if request.endpoint == 'total_lost_items' %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary ml-2" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                  </svg>
+                {% endif %}
+              </span>
+            </a>
+          </nav>
+        </div>
+        
+        <!-- Bottom Section -->
+        <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-100 bg-white">
+          
+
+          <!-- Logout Button -->
+          <a href="{{ url_for('admin_logout') }}" class="flex items-center px-4 py-2.5 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>Logout</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Dark overlay for mobile -->
+      <div @click="open = false" :class="{'opacity-60 pointer-events-auto': open, 'opacity-0 pointer-events-none': !open}" class="fixed inset-0 bg-black transition-opacity lg:hidden z-30"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <header class="bg-gradient-to-r from-primary to-accent shadow-md">
+        <div class="flex justify-between items-center px-6 py-4">
+          <div class="flex items-center">
+            <h2 class="text-xl font-semibold text-white">{% block header_title %}{% endblock %}</h2>
+            <!-- Breadcrumb - optional block that child templates can define -->
+            <div class="hidden md:flex items-center ml-4">
+              {% block breadcrumb %}{% endblock %}
+            </div>
+          </div>
+          <div class="flex items-center space-x-4">
+            <!-- Profile Dropdown -->
+            <div x-data="{ open: false }" class="relative">
+              <button @click="open = !open" @click.away="open = false" class="flex items-center space-x-3 focus:outline-none">
+                <span class="text-white font-medium hidden md:block">{{ session.get('admin_username', 'Admin') }}</span>
+                <div class="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors cursor-pointer">
+                  <span class="text-sm font-bold text-white">{{ session.get('admin_username', 'A')[0]|upper }}</span>
+                </div>
+              </button>
+              
+              <!-- Dropdown Menu -->
+              <div x-show="open" 
+                   x-transition:enter="transition ease-out duration-100"
+                   x-transition:enter-start="transform opacity-0 scale-95"
+                   x-transition:enter-end="transform opacity-100 scale-100"
+                   x-transition:leave="transition ease-in duration-75"
+                   x-transition:leave-start="transform opacity-100 scale-100"
+                   x-transition:leave-end="transform opacity-0 scale-95"
+                   class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 profile-dropdown"
+                   style="display: none;">
+                <div class="px-4 py-3 border-b border-gray-100">
+                  <p class="text-sm font-semibold text-gray-900">{{ session.get('admin_username', 'Admin') }}</p>
+                  <p class="text-xs text-gray-500">{{ g.admin.email if g.admin and g.admin.email else 'admin@tagtrack.com' }}</p>
+                </div>
+                <a href="{{ url_for('admin_profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Profile
+                  </div>
+                </a>
+                <a href="{{ url_for('admin_logout') }}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                  <div class="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Main Content Area -->
+      <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+</body>
+</html>

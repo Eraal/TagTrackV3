@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Information{% endblock %}
+
+{% block header_title %}Admin Information{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg overflow-hidden">
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Admin Profile</h2>
+      <a href="{{ url_for('edit_admin_profile') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+        Edit Profile
+      </a>
+    </div>
+    
+    <!-- Admin Info Card -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="md:col-span-1">
+        <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <div class="flex flex-col items-center">
+            <!-- Admin Avatar (placeholder) -->
+            <div class="w-32 h-32 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
+              <span class="text-5xl font-bold text-indigo-600">{{ admin.username[0]|upper }}</span>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800">{{ admin.full_name or admin.username }}</h3>
+            <p class="text-gray-500">{{ admin.position or 'Administrator' }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="md:col-span-2">
+        <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Admin Details</h3>
+          
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">Username</p>
+                <p class="font-medium">{{ admin.username }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Email</p>
+                <p class="font-medium">{{ admin.email or 'Not set' }}</p>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-gray-500">Position</p>
+                <p class="font-medium">{{ admin.position or 'Administrator' }}</p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Account Created</p>
+                <p class="font-medium">{{ admin.created_at.strftime('%B %d, %Y') if admin.created_at else 'Unknown' }}</p>
+              </div>
+            </div>
+            
+            <div>
+              <p class="text-sm text-gray-500">Last Login</p>
+              <p class="font-medium">{{ admin.last_login.strftime('%B %d, %Y at %H:%M') if admin.last_login else 'Never' }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Activity Section -->
+        <div class="bg-gray-50 p-6 rounded-lg shadow-sm mt-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Activity</h3>
+          
+          <div class="space-y-4">
+            <p class="text-gray-700">Login activity and other admin actions will appear here in future updates.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Security Section -->
+    <div class="mt-8">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Security</h3>
+      
+      <div class="bg-gray-50 p-6 rounded-lg shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="text-lg font-medium text-gray-800">Password</h4>
+            <p class="text-gray-500 text-sm mt-1">Last changed: Never</p>
+          </div>
+          <a href="{{ url_for('change_admin_password') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors">
+            Change Password
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

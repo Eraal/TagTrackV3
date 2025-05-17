@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-6 py-4 border-b border-gray-200 bg-white shadow-sm">
+    <h2 class="text-2xl font-bold">Registration Complete</h2>
+    <h2 class="text-lg text-gray-600">Your QR Code is Ready</h2>
+</div>
+
+<div class="max-w-4xl mx-auto my-8 p-6 bg-white rounded-xl shadow-lg">
+    <div class="bg-green-50 p-4 rounded-lg mb-6">
+        <div class="flex items-start">
+            <svg class="w-6 h-6 text-green-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <p class="text-green-800 font-medium">Your item has been registered successfully!</p>
+                <p class="text-green-600 text-sm mt-1">Print the QR code below and attach it to your item.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+            <h3 class="text-lg font-bold mb-4">Item Information</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <dl class="divide-y divide-gray-200">
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Description:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ item.description }}</dd>
+                    </div>
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Category:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ item.category.name }}</dd>
+                    </div>
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Location:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ item.location.name }}</dd>
+                    </div>
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Registration Date:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ item.registration_date.strftime('%Y-%m-%d') }}</dd>
+                    </div>
+                    <div class="py-3 grid grid-cols-3 gap-4">                        <dt class="text-sm font-medium text-gray-500">Status:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-2 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">
+                                    {{ item.status }}
+                                </span>
+                                <span class="px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800">
+                                    <span class="mr-1">🏷️</span> QR Tagged
+                                </span>
+                            </div>
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+            
+            <h3 class="text-lg font-bold mt-6 mb-4">Owner Information</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <dl class="divide-y divide-gray-200">
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Name:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ owner.name }}</dd>
+                    </div>
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Student ID:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ owner.student_id }}</dd>
+                    </div>
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Email:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ owner.email }}</dd>
+                    </div>
+                    <div class="py-3 grid grid-cols-3 gap-4">
+                        <dt class="text-sm font-medium text-gray-500">Contact:</dt>
+                        <dd class="text-sm text-gray-900 col-span-2">{{ owner.contact_number }}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        
+        <div class="flex flex-col items-center justify-start">
+            <h3 class="text-lg font-bold mb-4 self-start">Your QR Code</h3>
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <img src="{{ qr_code }}" alt="QR Code" class="w-64 h-64">
+            </div>
+            <p class="text-sm text-gray-600 mb-6">Print this QR code and attach it to your item</p>
+            <div class="space-x-3 flex">
+                <button onclick="window.print()" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                    </svg>
+                    Print QR Code
+                </button>
+                <a href="{{ qr_url }}" target="_blank" class="px-5 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    Test QR Code
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-8 pt-6 border-t">
+        <a href="{{ url_for('listtagitems') }}" class="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"></path>
+            </svg>
+            Back to Tagged Items
+        </a>
+    </div>
+</div>
+{% endblock %}

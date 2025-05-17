@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-xl overflow-hidden">
+        <div class="bg-red-600 p-4 text-white">
+            <h2 class="text-xl font-bold">Item Not Found</h2>
+            <p class="text-red-100">The scanned QR code is not recognized</p>
+        </div>
+        
+        <div class="p-6">
+            <div class="flex justify-center mb-6">
+                <svg class="w-24 h-24 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            
+            <div class="text-center mb-6">
+                <h3 class="text-xl font-bold mb-2">Invalid QR Code</h3>
+                <p class="text-gray-600">The QR code you scanned is not registered in our system or may have been removed.</p>
+            </div>
+            
+            <div class="bg-yellow-50 p-4 rounded-lg mb-6">
+                <div class="flex items-start">                    <svg class="w-6 h-6 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <p class="text-yellow-800 font-medium">Found a lost item?</p>
+                        <p class="text-yellow-600 text-sm mt-1">Please <a href="{{ url_for('report_found') }}" class="underline hover:text-yellow-700">see instructions</a> on where to submit it.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <a href="{{ url_for('landingpage') }}" class="block w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 
+                                                   text-white text-center font-medium rounded-lg">
+                    Return to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

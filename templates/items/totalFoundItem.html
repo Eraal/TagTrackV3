@@ -1,0 +1,161 @@
+{% extends 'base.html' %} 
+{% block title %}Total Found Items{% endblock %} 
+{% block header_title %}Found Items{% endblock %}
+
+{% block content %}
+<div class="px-6 py-4 border-b border-gray-200 bg-white shadow-sm">
+  <h2 class="text-2xl font-bold text-gray-800">Found Items</h2>
+  <div class="flex items-center text-sm text-gray-600 mt-1">
+    <a href="{{ url_for('dashboard') }}" class="hover:text-primary transition-colors">Dashboard</a>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+    <span>Items</span>
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mx-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+    <span class="font-medium">List Found Items</span>
+  </div>
+</div>
+
+
+<div class="bg-white rounded-lg shadow-md p-6 mb-6 transform transition-opacity duration-300 opacity-100 m-6">
+  <div class="flex justify-between items-center mb-6">
+    <div class="flex items-center gap-3">
+      <h2 class="text-xl font-semibold text-gray-800">Total Found Items:</h2>
+      <div class="bg-primary text-white px-4 py-2 rounded-lg font-bold shadow-sm">
+        <span>{{ total_found_items_count }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="flex flex-wrap gap-3 mb-6">
+    <div class="relative flex-grow md:flex-grow-0 md:min-w-[240px]">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+      </div>
+      <input
+        type="text"
+        id="search"
+        placeholder="Search items..."
+        class="pl-10 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 w-full"
+      />
+    </div>
+
+    <select id="category-filter" class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200">
+      <option value=""> 📂 Category</option>
+      {% for category in categories %}
+      <option value="{{ category }}">{{ category }}</option>
+      {% endfor %}
+    </select>
+
+    <select id="tag-filter" class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200">
+      <option value="">Filter by Tag</option>
+      <option value="Tagged">🟢 Tagged</option>
+      <option value="Not Tagged"> 🔴 None</option>
+    </select>
+  </div>
+  
+  <!-- Table Section -->
+  <div class="overflow-x-auto rounded-lg shadow">
+    <table class="w-full rounded-lg overflow-hidden">
+      <thead class="bg-primary text-white">
+        <tr>
+          <th class="py-3 px-4 text-center">#</th>
+          <th class="py-3 px-4 text-center">Category</th>
+          <th class="py-3 px-4 text-center">Description</th>
+          <th class="py-3 px-4 text-center">Status</th>
+          <th class="py-3 px-4 text-center">Date Claimed</th>
+          <th class="py-3 px-4 text-center">Date Found</th>
+          <th class="py-3 px-4 text-center">Tag</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in found_items %}
+        <tr class="{% if loop.index % 2 == 0 %}bg-gray-100{% else %}bg-white{% endif %} border-b border-gray-200 hover:bg-gray-50 transition-colors">
+          <td class="py-3 px-4 text-center">{{ loop.index }}</td>
+          <td class="py-3 px-4 text-center">{{ item.category }}</td>
+          <td class="py-3 px-4 text-center">{{ item.description or 'N/A' }}</td>            
+          <td class="py-3 px-4 text-center">
+            <span class="inline-block px-3 py-1 bg-green-500 text-white font-medium rounded-lg min-w-24">
+              {{ item.status }}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-center">
+            {{ item.date_claimed.strftime('%m/%d/%Y') if item.date_claimed else 'N/A' }}
+          </td>
+          <td class="py-3 px-4 text-center">{{ item.date_found.strftime('%m/%d/%Y') }}</td>            
+          <td class="py-3 px-4 text-center">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+              {% if item.rfid_tag and item.rfid_tag != 'None' %}
+                bg-green-100 text-green-800
+              {% else %}
+                bg-gray-100 text-gray-800
+              {% endif %}">
+              {% if item.rfid_tag and item.rfid_tag != 'None' %}
+                <span class="mr-1">🟢</span> QR Tagged
+              {% else %}
+                <span class="mr-1">🔴</span> Not Tagged
+              {% endif %}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Pagination -->
+  <div class="flex justify-center items-center gap-3 mt-6">
+    <button class="px-4 py-2 bg-gray-400 hover:bg-primary text-white rounded-lg transition-colors duration-200 shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+    <span class="text-gray-700 font-medium">Page 1 of {{ total_pages }}</span>
+    <button class="px-4 py-2 bg-gray-400 hover:bg-primary text-white rounded-lg transition-colors duration-200 shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  function filterItems() {
+    let searchValue = document.getElementById("search").value.toLowerCase().trim();
+    let categoryValue = document.getElementById("category-filter").value;
+    let tagValue = document.getElementById("tag-filter").value;
+
+    let rows = document.querySelectorAll("tbody tr");
+    
+    rows.forEach((row) => {
+      let category = row.children[1].textContent.trim();
+      let description = row.children[2].textContent.toLowerCase().trim();
+      let tagSpan = row.children[6].querySelector(".inline-flex");
+      let tagIcon = tagSpan.textContent.includes("QR Tagged") ? "Tagged" : "Not Tagged";
+
+      let matchesSearch = description.includes(searchValue) || searchValue === "";
+      let matchesCategory = category === categoryValue || categoryValue === "";
+      let matchesTag = tagIcon === tagValue || tagValue === "";
+
+      if (matchesSearch && matchesCategory && matchesTag) {
+        row.style.display = "";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  }
+
+  // Attach event listeners for real-time filtering
+  document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("search").addEventListener("keyup", filterItems);
+    document.getElementById("category-filter").addEventListener("change", filterItems);
+    document.getElementById("tag-filter").addEventListener("change", filterItems);
+  });
+</script>
+
+{% endblock %}

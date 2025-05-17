@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="px-6 py-4 border-b border-gray-200 bg-white shadow-sm">
+    <h2 class="text-2xl font-bold">Register Valuable Item</h2>
+    <h2 class="text-lg text-gray-600">Items / QR Tag Registration</h2>
+</div>
+
+<div class="max-w-4xl mx-auto my-8 p-6 bg-white rounded-xl shadow-lg">
+    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+        <div class="flex items-start">
+            <svg class="w-6 h-6 text-blue-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <p class="text-blue-800 font-medium">Register your valuable items to create a QR tag</p>
+                <p class="text-blue-600 text-sm mt-1">If your item is lost and found, the finder can scan the QR code to get your contact information.</p>
+            </div>
+        </div>
+    </div>
+    
+    <form id="registerItemForm" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Owner Information -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold border-b pb-2">Owner Information</h3>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name:</label>
+                    <input type="text" name="owner_name" id="owner_name" required 
+                           class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Student ID:</label>
+                    <input type="text" name="student_id" id="student_id" required 
+                           class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                    <input type="email" name="email" id="email" required 
+                           class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Contact Number:</label>
+                    <input type="text" name="contact" id="contact" required 
+                           class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+            
+            <!-- Item Information -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-bold border-b pb-2">Item Information</h3>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Category:</label>
+                    <select name="category_id" id="category_id" required
+                            class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Category</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Location:</label>
+                    <select name="location_id" id="location_id" required
+                            class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Location</option>
+                        {% for location in locations %}
+                        <option value="{{ location.id }}">{{ location.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description:</label>
+                    <textarea name="description" id="description" required
+                              class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              rows="3"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Image:</label>
+                    <div class="flex items-center justify-center w-full">
+                        <label for="image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p class="mb-1 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                <p class="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
+                            </div>
+                            <input id="image" name="image" type="file" accept="image/*" class="hidden" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-end pt-4 border-t mt-6">
+            <a href="{{ url_for('listtagitems') }}" class="px-5 py-2 mr-3 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-lg transition-colors">
+                Cancel
+            </a>
+            <button type="submit" 
+                    class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 15h6" />
+                </svg>
+                Register Item & Generate QR Code
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

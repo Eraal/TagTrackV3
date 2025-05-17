@@ -1,0 +1,650 @@
+{% extends "base.html" %} 
+{% block content %}
+<div class="px-6 py-4 border-b border-gray-200 bg-white shadow-sm">
+  <h2 class="text-2xl font-bold">Items Management</h2>
+  <h2 class="text-lg text-gray-600">Items / List Tagged Items</h2>
+</div>
+
+<div class="min-h-screen bg-gray-50">
+  <div class="px-4 py-6 md:px-8">
+    <!-- Header -->
+    
+
+    <!-- Main container -->
+    <div id="mainContainer" class="w-11/12 mx-auto opacity-0 transition-opacity duration-300">
+      <!-- Search and Filters -->      
+      <div class="flex flex-col md:flex-row justify-between items-center p-5 bg-white rounded-xl shadow-md mb-6">        
+        <div class="relative w-full md:w-1/3 mb-4 md:mb-0">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="search"
+            placeholder="Search by description, category, or tag..."
+            class="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"
+            onkeyup="filterItems()"
+          />
+        </div>
+          <div class="flex gap-3">
+          <select id="filter-status" class="px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm" onchange="filterItems()">
+            <option value="">📌 By Status</option>
+            <option value="Unclaimed">❌ Unclaimed</option>
+            <option value="Claimed">✅ Claimed</option>
+            <option value="Registered">🔒 Registered</option>
+          </select>
+          <select id="location-filter" class="px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm"></select>
+          <select id="date-filter" class="px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 shadow-sm" onchange="filterItems()">
+            <option value="">📅 All Dates</option>
+            <option value="Newest">⬆️ Newest</option>
+            <option value="Oldest">⬇️ Oldest</option>
+          </select>
+        </div>
+          <div class="flex">
+          <a href="{{ url_for('register_item') }}" 
+            class="px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+            Register New Item
+          </a>
+        </div>
+      </div>
+        <!-- Items Grid -->
+      <div id="items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-2">
+        <!-- Loading indicator - will be replaced by actual items -->
+        <div class="flex items-center justify-center col-span-full py-12">
+          <div class="flex flex-col items-center gap-4">
+            <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-gray-600">Loading tagged items...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Item Details Modal -->
+<div id="itemModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center backdrop-blur-sm">
+  <div class="bg-white w-11/12 max-w-4xl p-6 rounded-xl shadow-xl relative animate-fadeIn">
+    <button class="absolute right-5 top-5 text-3xl text-gray-600 hover:text-red-600 transition duration-200" onclick="closeModal()">×</button>
+    <h2 id="modal-title" class="text-2xl font-bold mb-4 pr-8 text-blue-800">Item Details</h2>
+    
+    <div class="flex flex-col lg:flex-row gap-6">
+      <img id="modal-image" src="" alt="Item Image" class="w-full lg:w-2/5 h-64 object-cover rounded-lg shadow-md">
+      
+      <div class="w-full lg:w-3/5 space-y-6">
+        <!-- Item Details -->
+        <div class="bg-gray-50 p-5 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+            Item Information
+          </h3>
+          <div class="space-y-2.5">
+            <p><span class="font-medium text-gray-700">Category:</span> <span id="modal-category" class="text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">Description:</span> <span id="modal-description" class="text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">Location:</span> <span id="modal-location" class="text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">Date Reported:</span> <span id="modal-date" class="text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">RFID Tag:</span> <span id="modal-rfid" class="font-mono text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">Status:</span> <span id="modal-status" class="px-2 py-1 rounded text-sm font-medium"></span></p>
+          </div>
+        </div>
+
+        <!-- Owner Details -->
+        <div class="bg-gray-50 p-5 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            Owner Information
+          </h3>
+          <div class="space-y-2.5">
+            <p><span class="font-medium text-gray-700">Name:</span> <span id="modal-owner-name" class="text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">Email:</span> <span id="modal-owner-email" class="text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">Student ID:</span> <span id="modal-owner-student-id" class="text-gray-800"></span></p>
+            <p><span class="font-medium text-gray-700">Contact Number:</span> <span id="modal-owner-contact" class="text-gray-800"></span></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="mt-6 flex justify-end gap-3 pt-4 border-t">
+      <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm" onclick="closeModal()">
+        Close
+      </button>
+      <button id="editItemBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow flex items-center">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+        </svg>
+        Edit Item
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Item Modal -->
+<div id="addEditItemModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 hidden items-center justify-center backdrop-blur-sm">
+  <div class="bg-white w-11/12 max-w-3xl p-6 rounded-xl shadow-xl relative animate-fadeIn overflow-y-auto max-h-90vh">
+    <button class="absolute right-5 top-5 text-3xl text-gray-600 hover:text-red-600 transition duration-200" onclick="closeAddEditModal()">×</button>
+    <h2 id="addEditModalTitle" class="text-2xl font-bold mb-6 pr-8 text-blue-800">Add Tagged Item</h2>
+    
+    <form id="itemForm" class="space-y-6">
+      <input type="hidden" id="itemId" name="itemId" value="">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div class="space-y-4">
+          <div>
+            <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <select id="category" name="category" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"></select>
+          </div>
+          
+          <div>
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea id="description" name="description" rows="3" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"></textarea>
+          </div>
+          
+          <div>
+            <label for="locationSelect" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+            <select id="locationSelect" name="location" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"></select>
+          </div>
+          
+          <div>
+            <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date Reported</label>
+            <input type="date" id="date" name="date" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+          </div>
+        </div>
+        
+        <!-- Right Column -->
+        <div class="space-y-4">
+          <div>
+            <label for="rfidTag" class="block text-sm font-medium text-gray-700 mb-1">RFID Tag</label>
+            <input type="text" id="rfidTag" name="rfidTag" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+          </div>
+          
+          <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>            
+            <select id="status" name="status" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+              <option value="Unclaimed">Unclaimed</option>
+              <option value="Claimed">Claimed</option>
+              <option value="Registered">Registered</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Image</label>
+            <input type="file" id="image" name="image" accept="image/*" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+            <div id="imagePreviewContainer" class="mt-3 hidden">
+              <img id="imagePreview" class="h-36 object-contain rounded-lg border border-gray-200" src="">
+            </div>
+          </div>
+          
+          <div>
+            <label for="owner" class="block text-sm font-medium text-gray-700 mb-1">Owner (Optional)</label>
+            <select id="owner" name="owner" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
+              <option value="">No Owner</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 pt-4 border-t mt-4">
+        <button type="button" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2.5 px-4 rounded-lg transition-all duration-200 shadow-sm" onclick="closeAddEditModal()">
+          Cancel
+        </button>
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-5 rounded-lg transition-all duration-200 shadow-sm hover:shadow">
+          Save Item
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let taggedItems = [];
+  let categories = [];
+  let locations = [];
+  let users = [];
+  let currentItemId = null;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    // Show main container with fade-in effect
+    setTimeout(() => {
+      document.getElementById("mainContainer").classList.add("opacity-100");
+    }, 100);
+    
+    // Fetch all required data
+    fetchTaggedItems();
+    fetchCategories();
+    fetchLocations();
+    fetchUsers();
+      // Setup event listeners
+    document.getElementById("itemForm").addEventListener("submit", handleItemFormSubmit);
+    document.getElementById("editItemBtn").addEventListener("click", handleEditButtonClick);
+    
+    // Image preview functionality
+    document.getElementById("image").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById("imagePreview").src = e.target.result;
+          document.getElementById("imagePreviewContainer").classList.remove("hidden");
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  });
+
+  async function fetchTaggedItems() {
+    try {
+      const response = await fetch("/api/tagged-items");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch items: ${response.statusText}`);
+      }
+      const items = await response.json();
+      taggedItems = items;
+      renderItems(taggedItems);
+    } catch (error) {
+      console.error("Error fetching tagged items:", error);
+      showNotification("Failed to load items", "error");
+    }
+  }
+  
+  async function fetchCategories() {
+    try {
+      const response = await fetch("/api/categories");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch categories: ${response.statusText}`);
+      }
+      categories = await response.json();
+      
+      // Populate category dropdown
+      const categoryDropdown = document.getElementById("category");
+      categoryDropdown.innerHTML = "";
+      
+      categories.forEach(category => {
+        if (category.status === "Active") {
+          const option = document.createElement("option");
+          option.value = category.id;
+          option.textContent = category.name;
+          categoryDropdown.appendChild(option);
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  }
+
+  async function fetchLocations() {
+    try {
+      const response = await fetch("/api/locations");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch locations: ${response.statusText}`);
+      }
+      locations = await response.json();
+      
+      // Populate location filter dropdown
+      const locationFilter = document.getElementById("location-filter");
+      locationFilter.innerHTML = '<option value="">📍 By Location</option>';
+      
+      // Populate form location dropdown
+      const locationSelect = document.getElementById("locationSelect");
+      locationSelect.innerHTML = "";
+      
+      locations.forEach(location => {
+        // For filter dropdown
+        const filterOption = document.createElement("option");
+        filterOption.value = location.name;
+        filterOption.textContent = location.name;
+        locationFilter.appendChild(filterOption);
+        
+        // For form dropdown
+        const formOption = document.createElement("option");
+        formOption.value = location.id;
+        formOption.textContent = location.name;
+        locationSelect.appendChild(formOption);
+      });
+      
+      // Add change event for filter
+      locationFilter.addEventListener("change", filterItems);
+    } catch (error) {
+      console.error("Error fetching locations:", error);
+    }
+  }
+  
+  async function fetchUsers() {
+    try {
+      const response = await fetch("/api/users");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch users: ${response.statusText}`);
+      }
+      users = await response.json();
+      
+      // Populate owners dropdown
+      const ownerDropdown = document.getElementById("owner");
+      ownerDropdown.innerHTML = '<option value="">No Owner</option>';
+      
+      users.forEach(user => {
+        const option = document.createElement("option");
+        option.value = user.id;
+        option.textContent = `${user.name} (${user.student_id})`;
+        ownerDropdown.appendChild(option);
+      });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }  function renderItems(items) {
+    const container = document.getElementById("items-container");
+    container.innerHTML = "";
+
+    if (items.length === 0) {
+      container.innerHTML = `
+        <div class="col-span-full flex flex-col items-center justify-center p-12 bg-white rounded-xl shadow-sm">
+          <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <p class="text-gray-500 text-lg mb-1">No tagged items found</p>
+          <p class="text-gray-400 text-sm">Try adjusting your search or filters</p>
+        </div>
+      `;
+      return;
+    }    
+    
+    // Create and append items with staggered animation
+    items.forEach((item, index) => {
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-xl shadow-md transition-all duration-300 hover:shadow-lg hover:translate-y-[-4px] overflow-hidden flex flex-col h-full opacity-0";
+      card.style.animation = `slideIn 0.4s ease-out ${index * 0.05}s forwards`;
+          // Status color class
+      let statusColorClass;
+      let statusIcon;
+      if (item.status === "Claimed") {
+        statusColorClass = "bg-emerald-100 text-emerald-800";
+        statusIcon = "✅";
+      } else if (item.status === "Registered") {
+        statusColorClass = "bg-blue-100 text-blue-800";
+        statusIcon = "🔒";
+      } else {
+        statusColorClass = "bg-amber-100 text-amber-800";
+        statusIcon = "❌";
+      }card.innerHTML = `
+        <div class="relative">
+          <img class="w-full h-48 object-cover" src="${item.image_file ? "/uploads/" + item.image_file : "/static/default-item.jpg"}" alt="${item.category} image">
+          <div class="absolute top-2 right-2 flex flex-col gap-1">
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${statusColorClass} flex items-center">
+              <span class="mr-1">${statusIcon}</span> ${item.status}
+            </span>
+            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 flex items-center">
+              <span class="mr-1">🏷️</span> QR Tagged
+            </span>
+          </div>
+          <div class="absolute bottom-0 w-full bg-gradient-to-t from-black/70 to-transparent p-3">
+            <h3 class="font-bold text-white text-lg">${item.category}</h3>
+          </div>
+        </div>
+        <div class="p-4 flex-grow flex flex-col">
+          <p class="text-gray-700 mb-3 line-clamp-2 flex-grow">${item.description}</p>
+          <div class="text-gray-600 text-sm space-y-2">
+            <p class="flex items-center"><span class="flex-shrink-0 w-5 h-5 mr-1.5 flex items-center justify-center text-blue-500">📍</span> ${item.location}</p>
+            <p class="flex items-center"><span class="flex-shrink-0 w-5 h-5 mr-1.5 flex items-center justify-center text-blue-500">📅</span> ${formatDate(item.date_reported)}</p>
+            <p class="flex items-center"><span class="flex-shrink-0 w-5 h-5 mr-1.5 flex items-center justify-center text-blue-500">🏷️</span> <span class="font-mono">${item.rfid_tag}</span></p>
+          </div>
+          <button class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 view-details-btn flex items-center justify-center" data-id="${item.id}">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+            View Details
+          </button>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+    // Attach event listeners to buttons
+    document.querySelectorAll(".view-details-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const itemId = this.getAttribute("data-id");
+        const item = taggedItems.find(i => i.id == itemId);
+        if (item) {
+          openDetailModal(item);
+        }
+      });
+    });
+  }
+
+  function openDetailModal(item) {
+    // Set modal data
+    document.getElementById("modal-title").textContent = item.category;
+    document.getElementById("modal-image").src = item.image_file ? "/uploads/" + item.image_file : "/static/default-item.jpg";
+    document.getElementById("modal-category").textContent = item.category;
+    document.getElementById("modal-description").textContent = item.description;
+    document.getElementById("modal-location").textContent = item.location;
+    document.getElementById("modal-date").textContent = formatDate(item.date_reported);
+    document.getElementById("modal-rfid").textContent = item.rfid_tag;
+      const statusElem = document.getElementById("modal-status");
+    statusElem.textContent = item.status;
+      // Set status color class
+    if (item.status === "Claimed") {
+      statusElem.className = "px-2 py-1 rounded text-sm font-medium bg-emerald-100 text-emerald-800";
+    } else if (item.status === "Registered") {
+      statusElem.className = "px-2 py-1 rounded text-sm font-medium bg-blue-100 text-blue-800";
+    } else {
+      statusElem.className = "px-2 py-1 rounded text-sm font-medium bg-amber-100 text-amber-800";
+    }
+
+    // Owner details
+    document.getElementById("modal-owner-name").textContent = item.owner_name || "N/A";
+    document.getElementById("modal-owner-email").textContent = item.owner_email || "N/A";
+    document.getElementById("modal-owner-student-id").textContent = item.owner_student_id || "N/A";
+    document.getElementById("modal-owner-contact").textContent = item.owner_contact || "N/A";
+    
+    // Store current item ID for edit button
+    currentItemId = item.id;
+    
+    // Show modal
+    document.getElementById("itemModal").classList.remove("hidden");
+    document.getElementById("itemModal").classList.add("flex");
+  }
+
+  function closeModal() {
+    document.getElementById("itemModal").classList.remove("flex");
+    document.getElementById("itemModal").classList.add("hidden");
+  }
+    // Function removed as we only use the Register New Item button now
+  
+  function handleEditButtonClick() {
+    closeModal(); // Close details modal
+    
+    // Find current item
+    const item = taggedItems.find(i => i.id == currentItemId);
+    if (!item) return;
+    
+    // Set form values
+    document.getElementById("itemId").value = item.id;
+    document.getElementById("category").value = item.category_id;
+    document.getElementById("description").value = item.description;
+    document.getElementById("locationSelect").value = item.location_id;
+    document.getElementById("date").value = item.date_reported;
+    document.getElementById("rfidTag").value = item.rfid_tag;
+    document.getElementById("status").value = item.status;
+    document.getElementById("owner").value = item.owner_id || "";
+    
+    // Show image preview if exists
+    if (item.image_file) {
+      document.getElementById("imagePreview").src = "/uploads/" + item.image_file;
+      document.getElementById("imagePreviewContainer").classList.remove("hidden");
+    }
+    
+    // Set modal title
+    document.getElementById("addEditModalTitle").textContent = "Edit Tagged Item";
+    
+    // Open modal
+    document.getElementById("addEditItemModal").classList.remove("hidden");
+    document.getElementById("addEditItemModal").classList.add("flex");
+  }
+  
+  function closeAddEditModal() {
+    document.getElementById("addEditItemModal").classList.remove("flex");
+    document.getElementById("addEditItemModal").classList.add("hidden");
+  }
+  
+  async function handleItemFormSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const itemId = formData.get("itemId");
+    const isEditing = itemId !== "";
+    
+    try {
+      let url = isEditing ? `/api/tagged-items/${itemId}` : "/api/tagged-items";
+      let method = isEditing ? "PUT" : "POST";
+      
+      const response = await fetch(url, {
+        method: method,
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to save item");
+      }
+      
+      // Success
+      closeAddEditModal();
+      fetchTaggedItems(); // Refresh the item list
+      showNotification(`Item successfully ${isEditing ? "updated" : "added"}!`, "success");
+    } catch (error) {
+      console.error("Error saving item:", error);
+      showNotification(error.message, "error");
+    }
+  }
+
+  function filterItems() {
+    const search = document.getElementById("search").value.toLowerCase();
+    const status = document.getElementById("filter-status").value;
+    const location = document.getElementById("location-filter").value;
+    const dateFilter = document.getElementById("date-filter").value;
+
+    let filteredItems = taggedItems.filter(item => {
+      return (search === "" ||
+              item.description.toLowerCase().includes(search) ||
+              item.category.toLowerCase().includes(search) ||
+              item.location.toLowerCase().includes(search) ||
+              item.rfid_tag.toLowerCase().includes(search)) &&
+             (status === "" || item.status === status) &&
+             (location === "" || item.location === location);
+    });
+
+    // Sort items by date if selected
+    if (dateFilter === "Newest") {
+      filteredItems.sort((a, b) => new Date(b.date_reported) - new Date(a.date_reported));
+    } else if (dateFilter === "Oldest") {
+      filteredItems.sort((a, b) => new Date(a.date_reported) - new Date(b.date_reported));
+    }
+
+    renderItems(filteredItems);
+  }
+  
+  function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  }
+    function showNotification(message, type = "info") {
+    // Remove any existing notifications to prevent stacking
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'notification fixed top-6 right-6 p-4 rounded-lg shadow-lg z-50 transform transition-all duration-500 translate-x-full';
+    
+    // Set notification type styling
+    let icon, bgColor, textColor;
+    switch(type) {
+      case 'success':
+        icon = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        bgColor = 'bg-green-100';
+        textColor = 'text-green-800';
+        break;
+      case 'error':
+        icon = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        bgColor = 'bg-red-100';
+        textColor = 'text-red-800';
+        break;
+      default:
+        icon = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        bgColor = 'bg-blue-100';
+        textColor = 'text-blue-800';
+    }
+    
+    notification.className += ` ${bgColor} ${textColor}`;
+    notification.innerHTML = `
+      <div class="flex items-center">
+        ${icon}
+        <div class="flex-1">${message}</div>
+        <button class="ml-4 text-gray-500 hover:text-gray-700 focus:outline-none" onclick="this.parentElement.parentElement.remove()">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    `;
+    
+    // Add to DOM
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full');
+      notification.classList.add('translate-x-0');
+    }, 10);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      notification.classList.remove('translate-x-0');
+      notification.classList.add('translate-x-full');
+      
+      // Remove from DOM after animation completes
+      setTimeout(() => notification.remove(), 500);
+    }, 5000);
+  }
+</script>
+
+<style>  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .animate-slideIn {
+    animation: slideIn 0.4s ease-out forwards;
+  }
+    
+  .max-h-90vh {
+    max-height: 90vh;
+  }
+    .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
+
+{% endblock %}
