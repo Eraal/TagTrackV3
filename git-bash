@@ -2,3 +2,4 @@ git status
 git remote -v
 git add .
 git commit -m "Description"
+git push -u origin main
