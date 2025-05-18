@@ -130,28 +130,28 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
       <div class="p-6">
         <div class="text-4xl font-bold text-primary mb-2">
-          <span class="counter">95</span>%
+          <span class="counter" id="return-rate">0</span>%
         </div>
         <p class="text-gray-600">Return Rate</p>
       </div>
 
       <div class="p-6">
         <div class="text-4xl font-bold text-primary mb-2">
-          <span class="counter">1500</span>+
+          <span class="counter" id="items-returned">0</span>+
         </div>
         <p class="text-gray-600">Items Returned</p>
       </div>
 
       <div class="p-6">
         <div class="text-4xl font-bold text-primary mb-2">
-          <span class="counter">2000</span>+
+          <span class="counter" id="active-users">0</span>+
         </div>
         <p class="text-gray-600">Active Users</p>
       </div>
 
       <div class="p-6">
         <div class="text-4xl font-bold text-primary mb-2">
-          <span class="counter">24</span>h
+          <span class="counter" id="avg-return-time">0</span>h
         </div>
         <p class="text-gray-600">Average Return Time</p>
       </div>
@@ -337,28 +337,56 @@
 </section>
 
 <script>
-  // Simple counter animation
+  // Fetch statistics data and animate counters
   document.addEventListener("DOMContentLoaded", () => {
-    const counters = document.querySelectorAll(".counter");
-    const speed = 200;
+    // Fetch statistics from the API
+    fetch('/api/stats')
+      .then(response => response.json())
+      .then(data => {
+        // Set the target values from API data
+        document.getElementById('return-rate').setAttribute('data-target', data.return_rate);
+        document.getElementById('items-returned').setAttribute('data-target', data.items_returned);
+        document.getElementById('active-users').setAttribute('data-target', data.active_users);
+        document.getElementById('avg-return-time').setAttribute('data-target', data.avg_return_time);
+        
+        // Start the counter animations
+        animateCounters();
+      })
+      .catch(error => {
+        console.error('Error fetching statistics:', error);
+        // Use fallback values if fetch fails
+        document.getElementById('return-rate').setAttribute('data-target', 95);
+        document.getElementById('items-returned').setAttribute('data-target', 1500);
+        document.getElementById('active-users').setAttribute('data-target', 2000);
+        document.getElementById('avg-return-time').setAttribute('data-target', 24);
+        
+        // Start the counter animations with fallback values
+        animateCounters();
+      });
 
-    counters.forEach((counter) => {
-      const animate = () => {
-        const target =
-          +counter.getAttribute("data-target") || +counter.innerText;
-        const count = +counter.innerText.match(/\d+/)[0];
-        const increment = target / speed;
+    function animateCounters() {
+      const counters = document.querySelectorAll(".counter");
+      const speed = 200;
 
-        if (count < target) {
-          counter.innerText = Math.ceil(count + increment);
-          setTimeout(animate, 1);
-        } else {
-          counter.innerText = target;
-        }
-      };
+      counters.forEach((counter) => {
+        const target = +counter.getAttribute("data-target");
+        counter.innerText = '0'; // Start from zero
+        
+        const animate = () => {
+          const count = +counter.innerText;
+          const increment = target / speed;
 
-      animate();
-    });
+          if (count < target) {
+            counter.innerText = Math.ceil(count + increment);
+            setTimeout(animate, 1);
+          } else {
+            counter.innerText = target;
+          }
+        };
+
+        animate();
+      });
+    }
   });
 </script>
 {% endblock %}

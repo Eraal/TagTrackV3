@@ -16,6 +16,7 @@
     </svg>
     <span class="font-medium">List Found Items</span>
   </div>
+  <p class="text-sm text-gray-500 mt-2">This page displays only items with status "Claimed"</p>
 </div>
 
 
@@ -132,11 +133,10 @@
 
     let rows = document.querySelectorAll("tbody tr");
     
-    rows.forEach((row) => {
-      let category = row.children[1].textContent.trim();
+    rows.forEach((row) => {      let category = row.children[1].textContent.trim();
       let description = row.children[2].textContent.toLowerCase().trim();
       let tagSpan = row.children[6].querySelector(".inline-flex");
-      let tagIcon = tagSpan.textContent.includes("QR Tagged") ? "Tagged" : "Not Tagged";
+      let tagIcon = tagSpan.textContent.includes("QR Tagged") || tagSpan.textContent.includes("Tagged:") ? "Tagged" : "Not Tagged";
 
       let matchesSearch = description.includes(searchValue) || searchValue === "";
       let matchesCategory = category === categoryValue || categoryValue === "";

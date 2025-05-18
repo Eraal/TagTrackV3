@@ -38,24 +38,16 @@
                 onkeyup="filterItems()">
         </div>
         
-        <div class="flex flex-wrap gap-2 w-full md:w-auto">
-            <select 
+        <div class="flex flex-wrap gap-2 w-full md:w-auto">            <select 
                 id="filter-rfid-tag" 
                 class="p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
                 onchange="filterItems()">
                 <option value="">🏷️ All Items</option>
                 <option value="Tagged">🔖 Tagged</option>
-                <option value="None">🚫 None</option>
+                <option value="None">🚫 Not Tagged</option>
             </select>
             
-            <select 
-                id="filter-status" 
-                class="p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"
-                onchange="filterItems()">
-                <option value="">📌 By Status</option>
-                <option value="Unclaimed">❌ Unclaimed</option>
-                <option value="Claimed">✅ Claimed</option>
-            </select>
+                        <select                 id="filter-status"                 class="p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200"                onchange="filterItems()">                <option value="">📌 All Statuses</option>                <option value="Unclaimed" class="text-red-600">🚫 Missing/Unclaimed</option>                <option value="Lost" class="text-red-600">⚠️ Lost</option>                <option value="Claimed" class="text-green-600">✅ Found/Claimed</option>                <option value="Registered" class="text-blue-600">📋 Registered</option>                <option value="Approved" class="text-purple-600">👍 Approved</option>                <option value="Completed" class="text-teal-600">🎯 Completed</option>            </select>
             
             <select 
                 id="location-filter" 
@@ -85,14 +77,7 @@
     </div>    
     
     <!-- Items Grid -->
-    <div id="items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-2">
-        <div class="flex items-center justify-center col-span-full">
-            <div class="flex flex-col items-center gap-4">
-                <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-gray-500 font-medium">Loading items...</p>
-            </div>
-        </div>
-    </div>
+        <div id="items-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-2">        <div class="flex items-center justify-center col-span-full py-12">            <div class="flex flex-col items-center gap-4">                <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>                <p class="text-gray-500 font-medium">Loading items...</p>            </div>        </div>    </div>
 </div>
 
 <!-- Add Item Modal -->
@@ -163,20 +148,36 @@
                             <select 
                                 id="status" 
                                 class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
-                                <option value="Unclaimed">Unclaimed</option>
-                                <option value="Claimed">Claimed</option>
+                                <option value="Unclaimed" class="text-red-600">🚫 Missing/Unclaimed</option>
+                                <option value="Lost" class="text-red-600">⚠️ Lost</option>
+                                <option value="Claimed" class="text-green-600">✅ Found/Claimed</option>
                             </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">RFID Tag:</label>
+                        </div>                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Item Has QR/RFID Tag?</label>
                             <select 
                                 id="rfid_tag" 
-                                class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
-                                <option value="None">None</option>
-                                <option value="Tagged">Tagged</option>
+                                class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                                onchange="toggleQrCodeField()">
+                                <option value="None">No (New Lost Item)</option>
+                                <option value="Tagged">Yes (Previously Tagged Item)</option>
                             </select>
-                        </div>
+                        </div><div id="qr_code_field" class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">QR Code Reference:</label>
+                                <div class="flex gap-2">
+                                    <input 
+                                        type="text" 
+                                        id="unique_code" 
+                                        placeholder="Enter QR code identifier" 
+                                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
+                                    <button 
+                                        type="button"
+                                        onclick="verifyQrCode()"
+                                        class="px-3 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                                        Verify
+                                    </button>
+                                </div>
+                                <p id="qr_code_verification" class="text-xs mt-1 text-gray-500">Enter the QR code of the previously tagged item that is now lost</p>
+                            </div>
                     </div>
                     
                     <div>
@@ -279,19 +280,37 @@
                             <select 
                                 id="edit_status" 
                                 class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
-                                <option value="Unclaimed">Unclaimed</option>
-                                <option value="Claimed">Claimed</option>
+                                <option value="Unclaimed" class="text-red-600">🚫 Missing/Unclaimed</option>
+                                <option value="Lost" class="text-red-600">⚠️ Lost</option>
+                                <option value="Claimed" class="text-green-600">✅ Found/Claimed</option>
+                            </select>
+                        </div>                          <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Item Has QR/RFID Tag?</label>
+                            <select 
+                                id="edit_rfid_tag" 
+                                class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                                onchange="toggleEditQrCodeField()">
+                                <option value="None">No (New Lost Item)</option>
+                                <option value="Tagged">Yes (Previously Tagged Item)</option>
                             </select>
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">RFID Tag:</label>
-                            <select 
-                                id="edit_rfid_tag" 
-                                class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
-                                <option value="None">None</option>
-                                <option value="Tagged">Tagged</option>
-                            </select>
+                        <div id="edit_qr_code_field" class="hidden">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">QR Code Reference:</label>
+                            <div class="flex gap-2">
+                                <input 
+                                    type="text" 
+                                    id="edit_unique_code" 
+                                    placeholder="Enter QR code identifier" 
+                                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
+                                <button 
+                                    type="button"
+                                    onclick="verifyEditQrCode()"
+                                    class="px-3 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                                    Verify
+                                </button>
+                            </div>
+                            <p id="edit_qr_code_verification" class="text-xs mt-1 text-gray-500">Enter the QR code of the previously tagged item that is now lost</p>
                         </div>
                     </div>
                     
@@ -305,9 +324,19 @@
                                     </svg>
                                     <p class="mb-1 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
                                     <p class="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
-                                </div>
-                                <input id="edit_image" type="file" name="edit_image" class="hidden" accept="image/*" />
+                                </div>                                <input id="edit_image" type="file" name="edit_image" class="hidden" accept="image/*" onchange="previewEditImage(this)" />
                             </label>
+                        </div>
+                        <!-- Image preview container -->
+                        <div id="edit_image_preview_container" class="mt-3 hidden">
+                            <div class="relative">
+                                <img id="edit_image_preview" class="h-40 w-full object-contain rounded-lg border border-gray-300" src="" alt="Image Preview">
+                                <button type="button" onclick="removeEditImagePreview()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -340,6 +369,145 @@ document.addEventListener("DOMContentLoaded", function() {
     fetchCategories(); // Populate the category dropdown
     fetchLocations(); // Populate the location dropdown and location filter
 });
+
+function toggleQrCodeField() {
+    const rfidTagValue = document.getElementById("rfid_tag").value;
+    const qrCodeField = document.getElementById("qr_code_field");
+    
+    if (rfidTagValue === "Tagged") {
+        qrCodeField.classList.remove("hidden");
+    } else {
+        qrCodeField.classList.add("hidden");
+        document.getElementById("unique_code").value = "";
+        document.getElementById("qr_code_verification").textContent = "Enter the QR code of the previously tagged item that is now lost";
+        document.getElementById("qr_code_verification").className = "text-xs mt-1 text-gray-500";
+    }
+}
+
+function toggleEditQrCodeField() {
+    const rfidTagValue = document.getElementById("edit_rfid_tag").value;
+    const qrCodeField = document.getElementById("edit_qr_code_field");
+    
+    if (rfidTagValue === "Tagged") {
+        qrCodeField.classList.remove("hidden");
+        // Preserve the current QR code value if it exists
+        const currentQrValue = document.getElementById("edit_unique_code").value;
+        if (!currentQrValue) {
+            document.getElementById("edit_qr_code_verification").textContent = "Enter the QR code of the tagged item";
+            document.getElementById("edit_qr_code_verification").className = "text-xs mt-1 text-gray-500";
+        }
+    } else {
+        qrCodeField.classList.add("hidden");
+        document.getElementById("edit_unique_code").value = "";
+        document.getElementById("edit_qr_code_verification").textContent = "Enter the QR code of the previously tagged item that is now lost";
+        document.getElementById("edit_qr_code_verification").className = "text-xs mt-1 text-gray-500";
+    }
+}
+
+async function verifyQrCode() {
+    const uniqueCode = document.getElementById("unique_code").value.trim();
+    const verificationMessage = document.getElementById("qr_code_verification");
+    
+    if (!uniqueCode) {
+        verificationMessage.textContent = "Please enter a QR code";
+        verificationMessage.className = "text-xs mt-1 text-red-500";
+        return;
+    }
+    
+    try {
+        // First check if the QR code exists in the system
+        const response = await fetch(`/scan/${uniqueCode}`);
+        
+        if (response.ok && !response.url.includes("item_not_found")) {
+            // QR code exists, check if it belongs to a previously tagged item
+            const itemResponse = await fetch("/api/items");
+            if (itemResponse.ok) {
+                const items = await itemResponse.json();
+                // Find if this QR code is already used in a lost item
+                const lostItem = items.find(item => 
+                    item.unique_code === uniqueCode && 
+                    (item.status === "Unclaimed" || item.status === "Lost")
+                );
+                
+                if (lostItem) {
+                    // This item is already reported as lost
+                    verificationMessage.textContent = "⚠️ This item is already reported as lost";
+                    verificationMessage.className = "text-xs mt-1 text-amber-500";
+                } else {
+                    // Valid QR code for a tagged item
+                    verificationMessage.textContent = "✓ Valid QR code found for tagged item";
+                    verificationMessage.className = "text-xs mt-1 text-green-600";
+                }
+            } else {
+                verificationMessage.textContent = "✓ Valid QR code found";
+                verificationMessage.className = "text-xs mt-1 text-green-600";
+            }
+        } else {
+            // QR code is invalid or not found
+            verificationMessage.textContent = "✗ QR code not found in system";
+            verificationMessage.className = "text-xs mt-1 text-red-500";
+        }
+    } catch (error) {
+        console.error("Error verifying QR code:", error);
+        verificationMessage.textContent = "Error checking QR code";
+        verificationMessage.className = "text-xs mt-1 text-red-500";
+    }
+}
+
+async function verifyEditQrCode() {
+    const uniqueCode = document.getElementById("edit_unique_code").value.trim();
+    const verificationMessage = document.getElementById("edit_qr_code_verification");
+    const currentItemId = document.getElementById("edit_item_id").value;
+    
+    if (!uniqueCode) {
+        verificationMessage.textContent = "Please enter a QR code";
+        verificationMessage.className = "text-xs mt-1 text-red-500";
+        return;
+    }
+    
+    try {
+        verificationMessage.textContent = "Verifying...";
+        verificationMessage.className = "text-xs mt-1 text-blue-500";
+        
+        // First check if the QR code exists in the system
+        const response = await fetch(`/scan/${uniqueCode}`);
+        
+        if (response.ok && !response.url.includes("item_not_found")) {
+            // QR code exists, check if it belongs to a previously tagged item
+            const itemResponse = await fetch("/api/items");
+            if (itemResponse.ok) {
+                const items = await itemResponse.json();
+                // Find if this QR code is already used in a lost item (not the current one being edited)
+                const lostItem = items.find(item => 
+                    item.unique_code === uniqueCode && 
+                    (item.status === "Unclaimed" || item.status === "Lost") &&
+                    parseInt(item.id) !== parseInt(currentItemId)
+                );
+                
+                if (lostItem) {
+                    // This item is already reported as lost
+                    verificationMessage.textContent = "⚠️ This QR code is already used on another lost item";
+                    verificationMessage.className = "text-xs mt-1 text-amber-500";
+                } else {
+                    // Valid QR code for a tagged item
+                    verificationMessage.textContent = "✓ Valid QR code found for tagged item";
+                    verificationMessage.className = "text-xs mt-1 text-green-600";
+                }
+            } else {
+                verificationMessage.textContent = "✓ Valid QR code found";
+                verificationMessage.className = "text-xs mt-1 text-green-600";
+            }
+        } else {
+            // QR code is invalid or not found
+            verificationMessage.textContent = "✗ QR code not found in system";
+            verificationMessage.className = "text-xs mt-1 text-red-500";
+        }
+    } catch (error) {
+        console.error("Error verifying QR code:", error);
+        verificationMessage.textContent = "Error checking QR code";
+        verificationMessage.className = "text-xs mt-1 text-red-500";
+    }
+}
 
 async function fetchItems() {
     try {
@@ -412,68 +580,28 @@ async function fetchLocations(dropdownId = "location-filter", selectedId = null)
     }
 }
 
-function renderItems(items) {
-    const container = document.getElementById("items-container");
-    
-    if (items.length === 0) {
-        container.innerHTML = '<p class="col-span-full text-center text-gray-500 py-8">No items found.</p>';
-        return;
-    }
-      container.innerHTML = items.map(item => `
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden transition transform duration-300 hover:shadow-xl hover:-translate-y-2 flex flex-col h-full border border-gray-100">
+function renderItems(items) {    const container = document.getElementById("items-container");        if (items.length === 0) {        container.innerHTML = `            <div class="col-span-full text-center py-12">                <div class="max-w-md mx-auto bg-white rounded-xl shadow-md p-8 border border-gray-200">                    <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />                    </svg>                    <p class="text-gray-500 text-lg font-medium">No items found</p>                    <p class="text-gray-400 mt-2">Try adjusting your search or filter criteria</p>                </div>            </div>`;        return;    }        container.innerHTML = items.map(item => `        <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition transform duration-300 hover:-translate-y-1 flex flex-col h-full border border-gray-200 overflow-hidden ${
+            item.status.toLowerCase() === 'unclaimed' || item.status.toLowerCase() === 'lost' 
+                ? 'border-l-4 border-l-red-500' 
+                : item.status.toLowerCase() === 'claimed' 
+                ? 'border-l-4 border-l-emerald-500'
+                : item.status.toLowerCase() === 'registered'
+                ? 'border-l-4 border-l-blue-500'
+                : item.status.toLowerCase() === 'approved'
+                ? 'border-l-4 border-l-indigo-500'
+                : item.status.toLowerCase() === 'completed'
+                ? 'border-l-4 border-l-teal-500'
+                : ''
+        }">
             <div class="relative overflow-hidden group">
                 <img 
                     src="/uploads/${item.image_file}" 
                     onerror="this.src='/static/images/a.png'" 
                     alt="${item.description}"
                     class="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-110">
-                <div class="absolute top-0 right-0 m-2">                    
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${
-                        item.status.toLowerCase() === 'claimed' 
-                            ? 'bg-emerald-500 text-white' 
-                            : item.status.toLowerCase() === 'registered'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-amber-500 text-white'
-                    }">${item.status}</span>
-                </div>
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent h-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-            <div class="p-5 flex-grow flex flex-col bg-white">                <div class="flex items-center mb-3">
-                    <span class="w-3 h-3 rounded-full ${item.rfid_tag === 'Tagged' ? 'bg-green-500' : 'bg-gray-400'} mr-2"></span>
-                    <p class="text-sm font-medium ${item.rfid_tag === 'Tagged' ? 'text-green-600' : 'text-gray-600'}">
-                        ${item.rfid_tag === 'Tagged' ? 'QR Tagged' : 'Not Tagged'}
-                    </p>
-                </div>
-                <h3 class="font-bold text-lg mb-3 text-gray-800 line-clamp-1">${item.description}</h3>
-                <div class="space-y-2 text-sm text-gray-600 flex-grow">
-                    <p class="flex items-center">
-                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
-                        <span class="font-medium">Category:</span> ${item.category}
-                    </p>
-                    <p class="flex items-center">
-                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span class="font-medium">Location:</span> ${item.location}
-                    </p>
-                    <p class="flex items-center">
-                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <span class="font-medium">Date:</span> ${item.date_reported}
-                    </p>
-                </div>
-                <button 
-                    class="mt-4 w-full py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center"
-                    onclick="openEditItemModal(${item.id})">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                    </svg>
-                    Edit Details
-                </button>
+                                <div class="absolute top-0 right-0 m-2">                                        <span class="px-3 py-1 rounded-full text-xs font-bold ${                        item.status.toLowerCase() === 'claimed'                             ? 'bg-emerald-500 text-white'                             : item.status.toLowerCase() === 'registered'                            ? 'bg-blue-500 text-white'                            : item.status.toLowerCase() === 'unclaimed'                            ? 'bg-red-500 text-white'                            : item.status.toLowerCase() === 'lost'                            ? 'bg-red-600 text-white'                            : item.status.toLowerCase() === 'approved'                            ? 'bg-indigo-500 text-white'                            : item.status.toLowerCase() === 'completed'                            ? 'bg-teal-500 text-white'                            : 'bg-amber-500 text-white'                    }">                        <i class="${                            item.status.toLowerCase() === 'claimed'                                 ? 'fas fa-check-circle mr-1'                                 : item.status.toLowerCase() === 'unclaimed' || item.status.toLowerCase() === 'lost'                                ? 'fas fa-exclamation-circle mr-1'                                : item.status.toLowerCase() === 'registered'                                ? 'fas fa-clipboard-list mr-1'                                : item.status.toLowerCase() === 'approved'                                ? 'fas fa-thumbs-up mr-1'                                : item.status.toLowerCase() === 'completed'                                ? 'fas fa-tag mr-1'                                : 'fas fa-info-circle mr-1'                        }"></i>                        ${item.status}                    </span>                </div>
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent h-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>            </div>                        <div class="p-5 flex-grow flex flex-col bg-white">                <!-- Tag Status Badge -->                <div class="flex items-center mb-3">                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold flex items-center ${                        item.unique_code || (item.rfid_tag && item.rfid_tag !== "None")                         ? 'bg-green-100 text-green-800 border border-green-200'                         : 'bg-gray-100 text-gray-600 border border-gray-200'                    }">                        <i class="${                            item.unique_code || (item.rfid_tag && item.rfid_tag !== "None")                             ? 'fas fa-tag mr-1.5'                             : 'fas fa-times-circle mr-1.5'                        }"></i>                        ${item.unique_code || (item.rfid_tag && item.rfid_tag !== "None")                           ? `Tagged: ${item.unique_code ? item.unique_code.substring(0, 8) : 'QR Coded'}`                           : 'Not Tagged'}                    </span>                </div>                                <!-- Item Description -->                <h3 class="font-bold text-lg mb-3 text-gray-800 line-clamp-2">${item.description}</h3>                                <!-- Item Details -->                <div class="space-y-3 text-sm text-gray-600 flex-grow">                    <div class="flex items-center">                        <div class="bg-blue-50 rounded-full p-1.5 mr-3">                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>                            </svg>                        </div>                        <div>                            <span class="text-xs text-gray-500">Category</span>                            <p class="font-medium">${item.category}</p>                        </div>                    </div>                                        <div class="flex items-center">                        <div class="bg-red-50 rounded-full p-1.5 mr-3">                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>                            </svg>                        </div>                        <div>                            <span class="text-xs text-gray-500">Location</span>                            <p class="font-medium">${item.location}</p>                        </div>                    </div>                                        <div class="flex items-center">                        <div class="bg-amber-50 rounded-full p-1.5 mr-3">                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>                            </svg>                        </div>                        <div>                            <span class="text-xs text-gray-500">Date Reported</span>                            <p class="font-medium">${item.date_reported}</p>                        </div>                    </div>                </div>
+                                <div class="mt-4 grid grid-cols-1 gap-2">                    <button                         class="w-full py-2.5 bg-primary hover:bg-accent text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center shadow-sm"                        onclick="openEditItemModal(${item.id})">                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>                        </svg>                        Edit Details                    </button>                </div>
             </div>
         </div>
     `).join("");
@@ -492,8 +620,9 @@ function filterItems() {
             let filteredItems = items.filter(item => {
                 const matchesSearch = search === "" || item.description.toLowerCase().includes(search);
                 const matchesStatus = status === "" || item.status === status;
-                const matchesLocation = locationId === "" || String(item.location_id) === locationId;
-                const matchesRFIDTag = rfidTagFilter === "" || item.rfid_tag === rfidTagFilter;
+                const matchesLocation = locationId === "" || String(item.location_id) === locationId;                const matchesRFIDTag = rfidTagFilter === "" || 
+                    (rfidTagFilter === "Tagged" && (item.unique_code || (item.rfid_tag && item.rfid_tag !== "None"))) || 
+                    (rfidTagFilter === "None" && !item.unique_code && (!item.rfid_tag || item.rfid_tag === "None"));
 
                 return matchesSearch && matchesStatus && matchesLocation && matchesRFIDTag;
             });
@@ -549,6 +678,28 @@ document.getElementById("addItemForm").addEventListener("submit", async function
     formData.append("date_reported", document.getElementById("date").value);
     formData.append("status", document.getElementById("status").value);
     formData.append("rfid_tag", document.getElementById("rfid_tag").value);
+      // Add unique_code if RFID tag is "Tagged"
+    if (document.getElementById("rfid_tag").value === "Tagged") {
+        const uniqueCode = document.getElementById("unique_code").value.trim();
+        if (uniqueCode) {
+            // Verify the QR code status before submitting
+            const verificationMessage = document.getElementById("qr_code_verification");
+            
+            if (verificationMessage.classList.contains("text-red-500")) {
+                // If there's an error message showing, prevent form submission
+                alert("The QR code is invalid. Please fix the error before submitting.");
+                return;
+            }
+            
+            formData.append("unique_code", uniqueCode);
+        } else {
+            // Show error if Tagged is selected but no QR code is provided
+            const verificationMessage = document.getElementById("qr_code_verification");
+            verificationMessage.textContent = "QR code reference is required when 'Tagged' is selected";
+            verificationMessage.className = "text-xs mt-1 text-red-500";
+            return;
+        }
+    }
     
     const imageFile = document.getElementById("image").files[0];
     if (imageFile) {
@@ -608,10 +759,174 @@ document.getElementById("addItemForm").addEventListener("submit", async function
 // Open Edit Item Modal and Pre-fill Data
 async function openEditItemModal(itemId) {
     try {
+        const modal = document.getElementById("editItemModal");
+        const modalContent = modal.querySelector(".bg-white");
+        
+        // Show a loading indicator inside the modal
+        modalContent.innerHTML = `
+            <div class="flex flex-col items-center justify-center p-10">
+                <div class="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p class="text-gray-600 font-medium">Loading item details...</p>
+            </div>
+        `;
+        
+        // Display the modal with loading indicator
+        modal.style.display = "flex";
+        setTimeout(() => {
+            modalContent.classList.add("scale-100", "opacity-100");
+            modalContent.classList.remove("scale-95", "opacity-0");
+        }, 10);
+        
         // Fetch the item details
         const itemResponse = await fetch(`/api/items/${itemId}`);
         if (!itemResponse.ok) throw new Error(`Failed to fetch item: ${itemResponse.statusText}`);
         const item = await itemResponse.json();
+        
+        // Reset the modal content to its original form
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl p-6 transform transition-all duration-300 scale-100 opacity-100">
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h2 class="text-2xl font-bold text-primary">Edit Item Details</h2>
+                    <button 
+                        onclick="closeEditItemModal()" 
+                        class="text-xl text-gray-500 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 rounded-full h-8 w-8 flex items-center justify-center transition-colors"
+                        aria-label="Close">&times;</button>
+                </div>
+                
+                <form id="editItemForm" enctype="multipart/form-data">
+                    <input type="hidden" id="edit_item_id">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Left Column -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Category:</label>
+                                <select 
+                                    id="edit_category" 
+                                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow" 
+                                    required>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Location:</label>
+                                <select 
+                                    id="edit_location" 
+                                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow" 
+                                    required>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description:</label>
+                                <textarea 
+                                    id="edit_description" 
+                                    placeholder="Item description..." 
+                                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow h-24" 
+                                    required></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Date:</label>
+                                <input 
+                                    type="date" 
+                                    id="edit_date" 
+                                    class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow" 
+                                    required>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Status:</label>
+                                    <select 
+                                        id="edit_status" 
+                                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
+                                        <option value="Unclaimed" class="text-red-600">🚫 Missing/Unclaimed</option>
+                                        <option value="Lost" class="text-red-600">⚠️ Lost</option>
+                                        <option value="Claimed" class="text-green-600">✅ Found/Claimed</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Item Has QR/RFID Tag?</label>
+                                    <select 
+                                        id="edit_rfid_tag" 
+                                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow"
+                                        onchange="toggleEditQrCodeField()">
+                                        <option value="None">No (New Lost Item)</option>
+                                        <option value="Tagged">Yes (Previously Tagged Item)</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="edit_qr_code_field" class="hidden">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">QR Code Reference:</label>
+                                    <div class="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            id="edit_unique_code" 
+                                            placeholder="Enter QR code identifier" 
+                                            class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-shadow">
+                                        <button 
+                                            type="button"
+                                            onclick="verifyEditQrCode()"
+                                            class="px-3 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+                                            Verify
+                                        </button>
+                                    </div>
+                                    <p id="edit_qr_code_verification" class="text-xs mt-1 text-gray-500">Enter the QR code of the previously tagged item that is now lost</p>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Change Image:</label>
+                                <div class="flex items-center justify-center w-full">
+                                    <label for="edit_image" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                            <svg class="w-8 h-8 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                            </svg>
+                                            <p class="mb-1 text-sm text-gray-500"><span class="font-semibold">Click to upload</span> or drag and drop</p>
+                                            <p class="text-xs text-gray-500">PNG, JPG or JPEG (MAX. 2MB)</p>
+                                        </div>
+                                        <input id="edit_image" type="file" name="edit_image" class="hidden" accept="image/*" onchange="previewEditImage(this)" />
+                                    </label>
+                                </div>
+                                <!-- Image preview container -->
+                                <div id="edit_image_preview_container" class="mt-3 hidden">
+                                    <div class="relative">
+                                        <img id="edit_image_preview" class="h-40 w-full object-contain rounded-lg border border-gray-300" src="" alt="Image Preview">
+                                        <button type="button" onclick="removeEditImagePreview()" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t flex justify-end">
+                        <button 
+                            type="button" 
+                            onclick="closeEditItemModal()" 
+                            class="px-5 py-2 mr-3 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-lg transition-colors">
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit" 
+                            class="px-5 py-2 bg-primary hover:bg-accent text-white rounded-lg transition-colors flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Update Item
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
 
         // Fetch categories and locations simultaneously
         await Promise.all([
@@ -624,20 +939,81 @@ async function openEditItemModal(itemId) {
         document.getElementById("edit_description").value = item.description;
         document.getElementById("edit_date").value = item.date_reported;
         document.getElementById("edit_status").value = item.status;
-        document.getElementById("edit_rfid_tag").value = item.rfid_tag === "Tagged" ? "Tagged" : "None";
-
-        // Show the modal with animation
-        const modal = document.getElementById("editItemModal");
-        modal.style.display = "flex";
-        setTimeout(() => {
-            const modalContent = modal.querySelector(".bg-white");
-            modalContent.classList.add("scale-100", "opacity-100");
-            modalContent.classList.remove("scale-95", "opacity-0");
-        }, 10);
+        
+        // Determine if item is tagged based on rfid_tag or unique_code
+        const isTagged = item.unique_code || (item.rfid_tag && item.rfid_tag !== "None");
+        document.getElementById("edit_rfid_tag").value = isTagged ? "Tagged" : "None";
+        
+        // Handle QR code field visibility
+        if (isTagged) {
+            document.getElementById("edit_qr_code_field").classList.remove("hidden");
+            if (item.unique_code) {
+                document.getElementById("edit_unique_code").value = item.unique_code;
+                
+                // Verify if this is a valid QR code for a previously tagged item
+                fetch(`/scan/${item.unique_code}`)
+                    .then(response => {
+                        if (response.ok && !response.url.includes("item_not_found")) {
+                            document.getElementById("edit_qr_code_verification").textContent = "✓ Valid QR code found for tagged item";
+                            document.getElementById("edit_qr_code_verification").className = "text-xs mt-1 text-green-600";
+                        } else {
+                            document.getElementById("edit_qr_code_verification").textContent = "⚠️ QR code may be invalid - please verify";
+                            document.getElementById("edit_qr_code_verification").className = "text-xs mt-1 text-amber-500";
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById("edit_qr_code_verification").textContent = "Error verifying QR code";
+                        document.getElementById("edit_qr_code_verification").className = "text-xs mt-1 text-red-500";
+                    });
+            }
+        } else {
+            document.getElementById("edit_qr_code_field").classList.add("hidden");
+        }
+        
+        // Display current image if any
+        const imagePreviewContainer = document.getElementById("edit_image_preview_container");
+        const imagePreview = document.getElementById("edit_image_preview");
+        
+        if (item.image_file && item.image_file !== "default.jpg") {
+            imagePreview.src = `/uploads/${item.image_file}`;
+            imagePreviewContainer.classList.remove("hidden");
+        } else {
+            imagePreviewContainer.classList.add("hidden");
+        }
     } catch (error) {
         console.error("Error fetching item details:", error);
         alert("An error occurred while fetching item details.");
+        closeEditItemModal();
     }
+}
+
+// Display selected image in the preview container
+function previewEditImage(input) {
+    const previewContainer = document.getElementById("edit_image_preview_container");
+    const previewImage = document.getElementById("edit_image_preview");
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            previewContainer.classList.remove("hidden");
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        previewContainer.classList.add("hidden");
+    }
+}
+
+// Remove the selected image and hide the preview container
+function removeEditImagePreview() {
+    // Clear the file input
+    const fileInput = document.getElementById("edit_image");
+    fileInput.value = "";
+    
+    // Hide the preview container
+    document.getElementById("edit_image_preview_container").classList.add("hidden");
 }
 
 // Close Edit Item Modal
@@ -676,7 +1052,31 @@ document.getElementById("editItemForm").addEventListener("submit", async functio
     if (rfidTag) formData.append("rfid_tag", rfidTag);
     if (category) formData.append("category_id", category);
     if (location) formData.append("location_id", location);
-    if (imageFile) formData.append("image", imageFile);
+    if (imageFile) formData.append("image", imageFile);    // Add unique_code if RFID tag is "Tagged"
+    if (rfidTag === "Tagged") {
+        const uniqueCode = document.getElementById("edit_unique_code").value.trim();
+        if (uniqueCode) {
+            // Verify the QR code status before submitting
+            const verificationMessage = document.getElementById("edit_qr_code_verification");
+            
+            if (verificationMessage.classList.contains("text-red-500")) {
+                // If there's an error message showing, prevent form submission
+                alert("The QR code is invalid. Please fix the error before submitting.");
+                return;
+            }
+            
+            formData.append("unique_code", uniqueCode);
+        } else {
+            // Show error if Tagged is selected but no QR code is provided
+            const verificationMessage = document.getElementById("edit_qr_code_verification");
+            verificationMessage.textContent = "QR code reference is required when 'Tagged' is selected";
+            verificationMessage.className = "text-xs mt-1 text-red-500";
+            return;
+        }
+    } else {
+        // If not tagged, ensure unique_code is set to empty
+        formData.append("unique_code", "");
+    }
 
     try {
         // Show loading state

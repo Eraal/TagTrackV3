@@ -54,6 +54,14 @@ class Item(db.Model):
     location = db.relationship('Location', back_populates="items")
     owner = db.relationship('User', back_populates="items")
 
+    @property
+    def item_name(self):
+        """Extract the item name from the description (format: 'Item Name: Description')"""
+        item_parts = self.description.split(':', 1)
+        if len(item_parts) > 1:
+            return item_parts[0].strip()
+        return "Unnamed Item"
+
  
 
 
@@ -65,8 +73,13 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     student_id = db.Column(db.String(50), unique=True, nullable=False)
     contact_number = db.Column(db.String(15), nullable=True)
+    password = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=True)
+    last_login = db.Column(db.DateTime, nullable=True)
+    account_status = db.Column(db.String(20), default="Active")
 
     items = db.relationship('Item', back_populates="owner")
+  
 
 
 # Claims Table

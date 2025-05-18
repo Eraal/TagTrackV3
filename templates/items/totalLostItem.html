@@ -41,7 +41,7 @@
 
       <select id="status-filter" class="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200">
         <option value="">📌 Status</option>
-        <option value="Claimed">✅ Claimed</option>
+        <option value="Lost">❓ Lost</option>
         <option value="Unclaimed">❌ Unclaimed</option>
       </select>
 
@@ -79,7 +79,7 @@
             <td class="py-3 px-4 text-center">{{ item.description or 'N/A' }}</td>            <td class="py-3 px-4 text-center">
               <span class="inline-block px-3 py-1 
                 {% if item.status == 'Claimed' %}bg-green-500
-                {% elif item.status == 'Registered' %}bg-primary
+                {% elif item.status == 'Lost' %}bg-red-500
                 {% else %}bg-amber-500{% endif %} 
                 text-white font-medium rounded-lg min-w-24 text-center">
                 {{ item.status }}
@@ -142,17 +142,18 @@
 
     let rows = document.querySelectorAll("tbody tr");
 
-    rows.forEach((row) => {      let category = row.children[1].textContent.trim();
+    rows.forEach((row) => {      
+      let category = row.children[1].textContent.trim();
       let description = row.children[2].textContent.toLowerCase().trim();
       let status = row.children[3].textContent.trim();
 
       // Get the tag span text to check if it contains "QR Tagged" or "Not Tagged"
       let tagSpan = row.children[6].querySelector(".tag-btn");
-      let tagIcon = tagSpan.textContent.includes("QR Tagged") ? "Tagged" : "Not Tagged";
+      let tagIcon = tagSpan.textContent.includes("QR Tagged") || tagSpan.textContent.includes("Tagged:") ? "Tagged" : "Not Tagged";
 
       let matchesSearch = description.includes(searchValue) || searchValue === "";
       let matchesCategory = category === categoryValue || categoryValue === "";
-      let matchesStatus = status === statusValue || statusValue === "";
+      let matchesStatus = status.includes(statusValue) || statusValue === "";
       let matchesTag = tagValue === "" || tagIcon === tagValue;
 
       if (matchesSearch && matchesCategory && matchesStatus && matchesTag) {

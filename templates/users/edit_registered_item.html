@@ -1,0 +1,146 @@
+{% extends 'userbase.html' %}
+
+{% block content %}
+<main class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header -->
+    <section class="mb-8">
+        <div class="flex items-center mb-6">
+            <a href="{{ url_for('user_dashboard') }}" class="flex items-center text-primary hover:text-primary-light">
+                <i class="fas fa-arrow-left mr-2"></i>
+                <span>Back to Dashboard</span>
+            </a>
+        </div>
+        
+        <div class="bg-gradient-to-r from-primary to-primary-light rounded-lg shadow-lg p-8 text-white">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">Edit Item Registration</h1>
+                    <p class="text-lg opacity-90">Update your item details</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Edit Form -->
+    <section class="mb-8">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                {% if error %}
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                    <p>{{ error }}</p>
+                </div>
+                {% endif %}
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category == 'error' %}
+                            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                                <p>{{ message }}</p>
+                            </div>
+                            {% elif category == 'success' %}
+                            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+                                <p>{{ message }}</p>
+                            </div>
+                            {% else %}
+                            <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6" role="alert">
+                                <p>{{ message }}</p>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('edit_registered_item', item_id=item.id) }}" enctype="multipart/form-data" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="item_name" class="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+                            <input type="text" id="item_name" name="item_name" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary"
+                                placeholder="e.g., Laptop, Watch, Wallet" value="{{ item_name }}">
+                        </div>
+
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="category" name="category_id" required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                <option value="" disabled>Select a category</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" {% if category.id == item.category_id %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="description" name="description" rows="4" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary"
+                            placeholder="Provide detailed description of your item including brand, model, color, distinguishing features, etc.">{{ description }}</textarea>
+                    </div>
+
+                    <div>                        <label class="block text-sm font-medium text-gray-700 mb-1">Current Image</label>
+                        {% if item.image_file %}
+                        <div class="mt-1 mb-4">
+                            <img src="{{ url_for('uploaded_file', filename=item.image_file) }}" alt="Current item image" class="h-32 w-auto rounded">
+                        </div>
+                        {% else %}
+                        <div class="mt-1 mb-4 p-4 bg-gray-100 text-gray-600 rounded text-center">
+                            No image uploaded
+                        </div>
+                        {% endif %}
+                        
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Update Image (Optional)</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <div id="preview-container" class="hidden mb-3">
+                                    <img id="image-preview" src="#" alt="Image preview" class="mx-auto h-32 w-auto">
+                                </div>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="image"
+                                        class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-light focus-within:outline-none">
+                                        <span>Upload a new image</span>
+                                        <input id="image" name="image" type="file" class="sr-only" accept="image/*" onchange="previewImage()">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    PNG, JPG, GIF up to 5MB
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <a href="{{ url_for('user_dashboard') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-md mr-4 transition-colors">
+                            Cancel
+                        </a>
+                        <button type="submit" class="bg-primary hover:bg-primary-light text-white font-medium py-2 px-6 rounded-md transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script>
+    function previewImage() {
+        const preview = document.getElementById('image-preview');
+        const file = document.getElementById('image').files[0];
+        const previewContainer = document.getElementById('preview-container');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+        } else {
+            previewContainer.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

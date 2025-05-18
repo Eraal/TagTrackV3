@@ -1,0 +1,151 @@
+{% extends 'userbase.html' %}
+
+{% block content %}
+<main class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header with back button -->
+    <div class="flex items-center mb-6">
+        <a href="{{ url_for('user_dashboard') }}" class="flex items-center text-primary hover:text-primary-light">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>Back to Dashboard</span>
+        </a>    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-6">
+                {% for category, message in messages %}
+                    {% if category == 'error' %}
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-md shadow" role="alert">
+                        <p>{{ message }}</p>
+                    </div>
+                    {% elif category == 'success' %}
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-md shadow" role="alert">
+                        <p>{{ message }}</p>
+                    </div>
+                    {% else %}
+                    <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-4 rounded-md shadow" role="alert">
+                        <p>{{ message }}</p>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Item details card -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="flex flex-col md:flex-row">
+            <!-- Left side - image -->            <div class="md:w-1/3 bg-gray-50 p-6 flex items-center justify-center">
+                {% if item.image_file %}
+                <img src="{{ url_for('uploaded_file', filename=item.image_file) }}" alt="{{ item.item_name }}" class="max-w-full max-h-64 object-contain rounded">
+                {% else %}
+                <div class="h-64 w-full bg-gray-200 rounded flex items-center justify-center">
+                    <i class="fas fa-tag text-4xl text-gray-400"></i>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right side - details -->
+            <div class="md:w-2/3 p-6">
+                <div class="flex justify-between items-start mb-4">
+                    <h1 class="text-2xl font-bold text-gray-800">{{ item.item_name }}</h1>
+                      {% if item.status == 'Registered' %}
+                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        Pending Approval
+                    </span>
+                    {% elif item.status == 'Approved' %}
+                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        Approved - Ready for Tag Pickup
+                    </span>
+                    {% elif item.status == 'Completed' %}
+                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Tagged & Active
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-6">
+                    <p class="text-sm text-gray-500 mb-1">Category</p>
+                    <p class="font-medium">{{ item.category.name if item.category else 'No category' }}</p>
+                </div>
+
+                <div class="mb-6">
+                    <p class="text-sm text-gray-500 mb-1">Description</p>
+                    <p class="text-gray-700">{{ item.description }}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Registration Date</p>
+                        <p class="font-medium">
+                            {% if item.registration_date %}
+                                {{ item.registration_date.strftime('%B %d, %Y') }}
+                            {% else %}
+                                {{ item.date_reported.strftime('%B %d, %Y') }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% if item.issue_date %}
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Tag Issued Date</p>
+                        <p class="font-medium">{{ item.issue_date.strftime('%B %d, %Y') }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if item.unique_code and item.status == 'Completed' %}
+                <div class="mb-6">
+                    <p class="text-sm text-gray-500 mb-1">Unique Code</p>
+                    <p class="font-medium font-mono">{{ item.unique_code }}</p>
+                </div>
+                {% endif %}                <!-- Action buttons based on status -->
+                <div class="flex flex-wrap gap-3 mt-6">
+                    {% if item.status == 'Registered' %}
+                    <a href="{{ url_for('edit_registered_item', item_id=item.id) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
+                        <i class="fas fa-edit mr-2"></i> Edit Registration
+                    </a>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 w-full">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-yellow-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-yellow-700">
+                                    Your item registration is pending approval. You'll be notified when it's approved.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif item.status == 'Approved' %}
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 w-full">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-blue-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-blue-700">
+                                    Your item registration has been approved. Please visit the BAO Office with your student ID to collect your QR tag.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% elif item.status == 'Completed' %}
+                    <div class="bg-green-50 border-l-4 border-green-500 p-4 w-full">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-check-circle text-green-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-green-700">
+                                    Your item has been successfully tagged. The QR code on your item can be scanned to identify it if lost.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
