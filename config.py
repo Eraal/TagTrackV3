@@ -1,8 +1,10 @@
 import os
+from dotenv import load_dotenv
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# Load environment variables from .env
+load_dotenv()
 
 class Config:
-    # PostgreSQL connection URI
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:admin@localhost/tagtrack'
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret")

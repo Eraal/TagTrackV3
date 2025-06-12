@@ -13,15 +13,13 @@ import secrets
 import base64
 from io import BytesIO
 import hashlib
+from config import Config
 
 
 # Initialize the Flask app
 app = Flask(__name__)
+app.config.from_object(Config)
 
-app.secret_key = "Rald" 
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/tagtrack'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Configure upload folder and allowed extensions
 UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded images
