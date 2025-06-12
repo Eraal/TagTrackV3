@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: tagtrack-app
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
+    autoDeploy: true
+
+databases:
+  - name: tagtrack-db
+    plan: free
